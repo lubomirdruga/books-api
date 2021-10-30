@@ -115,4 +115,22 @@ class AuthorMutationTest {
 
         assertThat(resultAuthor).isSameAs(author);
     }
+
+    @Test
+    public void addAuthor_shouldReturnSavedAuthor() {
+
+        String authorName = "J. K. Rowling";
+        Author author = new Author(authorName, Collections.emptySet());
+
+        // given
+        when(dataFetchingEnvironment.getArgument(DgsConstants.AUTHOR.FullName)).thenReturn(authorName);
+        when(authorService.save(author)).thenReturn(author);
+
+        // when
+        Author authorCreated = underTest.addAuthor(dataFetchingEnvironment);
+
+        // then
+        assertThat(authorCreated.getFullName()).isEqualTo(authorName);
+    }
+
 }

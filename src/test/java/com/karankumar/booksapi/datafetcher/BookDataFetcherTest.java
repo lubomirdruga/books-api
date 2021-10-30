@@ -35,8 +35,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -274,5 +273,57 @@ class BookDataFetcherTest {
 
         // Then
         assertThat(actual).containsExactly(genreName.getGenre());
+    }
+
+    @Test
+    void findByPublisher_returnsNonNullBook_whenPublisherFound() {
+        // Given
+        String publisherName = "Bloomsbury";
+        String bookTitle = "Harry Potter";
+        Book book = new Book(
+                bookTitle, new Lang(LanguageName.ENGLISH), "blurb", new Genre(GenreName.FANTASY),
+                new PublishingFormat(PublishingFormat.Format.HARDCOVER)
+        );
+        book.setPublishers(Set.of(new Publisher("Bloomsbury Publishing")));
+
+        given(bookService.findByPublisher(publisherName)).willReturn(List.of(book));
+        GraphQLQueryRequest graphQLQueryRequest = new GraphQLQueryRequest(
+                FindByPublisherGraphQLQuery.newRequest()
+                        .name(publisherName)
+                        .build(),
+                new FindByPublisherProjectionRoot().title()
+        );
+
+        // When
+        List<String> actual = queryExecutor.executeAndExtractJsonPath(
+                graphQLQueryRequest.serialize(),
+                ROOT + DgsConstants.QUERY.FindByPublisher + "[*]." + DgsConstants.BOOK.Title
+        );
+
+        // Then
+        assertThat(actual).containsExactly(bookTitle);
+    }
+
+    @Test
+    void findByPublisher_returnsNoBooks_whenPublisherNotFound() {
+        // Given
+        String publisherName = UUID.randomUUID().toString();
+        given(bookService.findByPublisher(publisherName)).willReturn(Collections.emptyList());
+
+        GraphQLQueryRequest graphQLQueryRequest = new GraphQLQueryRequest(
+                FindByPublisherGraphQLQuery.newRequest()
+                        .name(publisherName)
+                        .build(),
+                new FindByPublisherProjectionRoot().title()
+        );
+
+        // When
+        List<String> actual = queryExecutor.executeAndExtractJsonPath(
+                graphQLQueryRequest.serialize(),
+                ROOT + DgsConstants.QUERY.FindByPublisher + "[*]." + DgsConstants.BOOK.Title
+        );
+
+        // Then
+        assertThat(actual).isEmpty();
     }
 }

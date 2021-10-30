@@ -31,7 +31,7 @@ import java.util.Optional;
 @DgsComponent
 public class BookMutation {
     private final BookService bookService;
-    private static final String NOT_FOUND_ERROR_MESSAGE = "Book not found";
+    public static final String NOT_FOUND_ERROR_MESSAGE = "Book not found";
 
     public BookMutation(BookService bookService) {
         this.bookService = bookService;
