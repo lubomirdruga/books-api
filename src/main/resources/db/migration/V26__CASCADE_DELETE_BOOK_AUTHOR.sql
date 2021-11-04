@@ -1,0 +1,4 @@
+ALTER TABLE book_author
+ADD FOREIGN KEY (author_id) REFERENCES author (id)
+ON
+DELETE CASCADE;

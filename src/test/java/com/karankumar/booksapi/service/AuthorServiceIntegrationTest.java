@@ -26,7 +26,6 @@ import com.karankumar.booksapi.repository.AuthorRepository;
 import com.karankumar.booksapi.repository.BookRepository;
 import com.karankumar.booksapi.repository.GenreRepository;
 import com.karankumar.booksapi.repository.LanguageRepository;
-import com.karankumar.booksapi.repository.NativeQueryRepository;
 import com.karankumar.booksapi.repository.PublishingFormatRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,7 @@ import java.util.HashSet;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 @DataJpaIntegrationTest
-@Import({NativeQueryRepository.class, AuthorService.class})
+@Import({AuthorService.class})
 public class AuthorServiceIntegrationTest {
 
     private final AuthorService underTest;

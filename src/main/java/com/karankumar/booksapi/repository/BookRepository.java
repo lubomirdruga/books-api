@@ -16,7 +16,6 @@
 package com.karankumar.booksapi.repository;
 
 import com.karankumar.booksapi.model.Book;
-import com.karankumar.booksapi.model.genre.GenreName;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -41,14 +40,19 @@ public interface BookRepository extends CrudRepository<Book, Long> {
     Book findByTitleIgnoreCase(String title);
     
     @Query(value =
-            "SELECT b.* FROM book b " +
-            "LEFT JOIN publisher_book pb ON pb.book_id = b.id " +
-            "LEFT JOIN publisher p ON p.id = pb.publisher_id " +
-            "WHERE p.name LIKE :publisherName",
-            nativeQuery = true
-    )
+            "SELECT b FROM Book b "
+                    + "LEFT JOIN FETCH b.publishers p "
+                    + "WHERE p.name LIKE :publisherName")
     List<Book> findByPublisher(@Param("publisherName") String publisherName);
 
     @Query("SELECT b FROM Book b WHERE b.genre.name LIKE ?1")
     List<Book> findByGenre(String genreName);
+
+  @Query(
+      "SELECT b FROM Book b "
+          + "JOIN FETCH b.authors a "
+          + "WHERE a.id = :authorId "
+          + "group by b.id "
+          + "HAVING count(a) = 1")
+  List<Book> getAllBooksAuthorWroteAlone(@Param("authorId") Long authorId);
 }
